@@ -9,14 +9,21 @@ setpoints=[0,0,0,0,0]
 for i in range(4):
   h.newpin("setpoint-"+str(i), hal.HAL_FLOAT, hal.HAL_IN)
   h.newpin("temperature-"+str(i), hal.HAL_FLOAT, hal.HAL_OUT)
+  h["temperature-%s"%str(i)] = 0
+  h["setpoint-%s"%str(i)] = 0
+
 h.newpin("error", hal.HAL_BIT, hal.HAL_OUT)
+tc=tclab.TCLab()
+
 h.ready()
+
 try:
-  try:
-    tc=tclab.TCLab()
-    h["error"]=False
-  except:
-    h["error"]=True
+  #try:
+  h["error"]=False
+  #except:
+  #  h["error"]=True
+  #  print ("no connection")
+  #  raise SystemExit
   while 1:
     #h['out'] = h['in']
     for i in range(4):
