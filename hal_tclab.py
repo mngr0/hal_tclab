@@ -12,8 +12,11 @@ for i in range(4):
 h.newpin("error", hal.HAL_BIT, hal.HAL_OUT)
 h.ready()
 try:
-  tc=tclab.TCLab()
-  h["error"]=False
+  try:
+    tc=tclab.TCLab()
+    h["error"]=False
+  except:
+    h["error"]=True
   while 1:
     #h['out'] = h['in']
     for i in range(4):
