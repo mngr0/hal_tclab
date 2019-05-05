@@ -14,7 +14,7 @@ for i in range(4):
   h["temperature-"+str(i)] = 0
   h["setpoint-"+str(i)] = 0
   #h["enable-"+str(i)] = False
-  h["error"+str(i)]= False
+  h["error-"+str(i)]= False
 
 h.newpin("error", hal.HAL_BIT, hal.HAL_OUT)
 h["error"] = 0
