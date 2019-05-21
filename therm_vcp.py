@@ -1,6 +1,7 @@
 #!/usr/bin/python2
 
-from machinekit import hal
+#from machinekit 
+import hal
 import time
 import sys
 
@@ -29,11 +30,11 @@ if __name__ == '__NOmain__':
   #check for  argc
   comp=therm_vcp(sys.argv[1])
 
-#comp=therm_vcp(sys.argv[1])
+comp=therm_vcp(sys.argv[1])
 
-#try:
-#  while 1:
-#    comp.routine()
-#    time.sleep(1)
-#except KeyboardInterrupt:
-#  raise SystemExit
+try:
+  while 1:
+    comp.routine()
+    time.sleep(0.2)
+except KeyboardInterrupt:
+  raise SystemExit

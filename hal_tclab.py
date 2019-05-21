@@ -1,28 +1,35 @@
 #!/usr/bin/python2
 
-from machinekit import hal
+#from machinekit import hal
+import hal
 import time
 import tclab
 
 class hal_tclab:
   def __init__(self, name="hal_tclab"):
     print("HERE IS HAL_TCLAB STARITNG")
-    self.h = hal.Component(name)
+    self.h = hal.component(name)
 #a input pin for every setpoint
 #a output pin for every temp
     self.setpoints=[0,0,0,0,0]
     for i in range(4):
       self.h.newpin("setpoint-"+str(i), hal.HAL_FLOAT, hal.HAL_IN)
       self.h.newpin("temperature-"+str(i), hal.HAL_FLOAT, hal.HAL_OUT)
-      self.h.newpin("error-"+str(i), hal.HAL_BIT, hal.HAL_OUT)
+      #self.h.newpin("error-"+str(i), hal.HAL_BIT, hal.HAL_OUT)
       self.h["temperature-"+str(i)] = 0
-      self.h["setpoint-"+str(i)] = self.setpoints[i]
-      self.h["error-"+str(i)]= False
+      self.h["setpoint-"+str(i)] = 0
     self.h.newpin("enable",hal.HAL_BIT, hal.HAL_IN)
     self.h.newpin("error", hal.HAL_BIT, hal.HAL_OUT)
-    self.h["error"] = 0
+
     self.tc=tclab.TCLab()
+
+    for i in range(4):
+      self.setpoints[i] = self.tc.getsetpoint(i)
+      #self.h["error-"+str(i)]= False
+    self.h["error"] = 0
+
     self.h.ready()
+
     print("HERE IS HAL_TCLAB READY")
 
 
@@ -37,11 +44,11 @@ class hal_tclab:
         try:
           for i in range(4):
             self.h["temperature-"+str(i)]=self.tc.temperature(i)
-            tmp_set = self.h["setpoint-"+str(i)]
+            tmp_set =  self.h["setpoint-"+str(i)]
             if tmp_set != self.setpoints[i]:
-              self.tc.setpoint(i,tmp_set)
+              self.tc.setsetpoint(i,tmp_set)
               self.setpoints[i] = tmp_set
-            if self.h["enable"]:
+            if self.h["enable"] and self.h["temperature-"+str(i)] > 10 :
               self.tc.enable(i)
             else:
               self.tc.disable(i)
@@ -56,10 +63,10 @@ print("HERE IS HAL_TCLAB MAIN")
 
 comp= hal_tclab()
 #hal.addf("servo-thread")
-#try:
-#  while 1:
-#    comp.routine()
-#    time.sleep(1)
-#except Exception as e:
-#  print (str(e))
-#  raise SystemExit
+try:
+  while 1:
+    comp.routine()
+    time.sleep(0.3)
+except Exception as e:
+  print (str(e))
+  raise SystemExit
