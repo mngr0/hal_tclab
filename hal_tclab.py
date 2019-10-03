@@ -15,9 +15,12 @@ class hal_tclab:
     for i in range(4):
       self.h.newpin("setpoint-"+str(i), hal.HAL_FLOAT, hal.HAL_IN)
       self.h.newpin("temperature-"+str(i), hal.HAL_FLOAT, hal.HAL_OUT)
+      self.h.newpin("enable-"+str(i),hal.HAL_BIT, hal.HAL_IN)
       #self.h.newpin("error-"+str(i), hal.HAL_BIT, hal.HAL_OUT)
       self.h["temperature-"+str(i)] = 0
       self.h["setpoint-"+str(i)] = 0
+      self.h["enable-"+str(i)] = 0
+
     self.h.newpin("enable",hal.HAL_BIT, hal.HAL_IN)
     self.h.newpin("error", hal.HAL_BIT, hal.HAL_OUT)
 
@@ -48,7 +51,7 @@ class hal_tclab:
             if tmp_set != self.setpoints[i]:
               self.tc.setsetpoint(i,tmp_set)
               self.setpoints[i] = tmp_set
-            if self.h["enable"] and self.h["temperature-"+str(i)] > 10 :
+            if self.h["enable"] and self.h["enable-"+str(i)] and self.h["temperature-"+str(i)] > 0 :
               self.tc.enable(i)
             else:
               self.tc.disable(i)
@@ -66,7 +69,7 @@ comp= hal_tclab()
 try:
   while 1:
     comp.routine()
-    time.sleep(0.3)
+    time.sleep(0.01)
 except Exception as e:
   print (str(e))
   raise SystemExit
