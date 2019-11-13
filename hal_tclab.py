@@ -65,10 +65,10 @@ class hal_tclab:
             if self.h["enable"] and self.h["enable-"+str(i)]:
               if self.h["temperature-"+str(i)] > -20 :
                 self.tc.enable(i)
-                self.tc["error-"+str(i)] = False
+                self.h["error-"+str(i)] = False
               else:
                 self.tc.disable(i)
-                self.tc["error-"+str(i)] = True
+                self.h["error-"+str(i)] = True
             else:
               self.tc.disable(i)
         except Exception as e:
