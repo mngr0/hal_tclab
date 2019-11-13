@@ -5,6 +5,15 @@ import hal
 import time
 import tclab
 
+tc= None
+
+def prepare():
+  print("prepare")
+  global tc
+  tc=tclab.TCLab()
+  print("arduino tclab ready")
+
+
 class hal_tclab:
   def __init__(self, name="hal_tclab"):
     print("HERE IS HAL_TCLAB STARITNG")
@@ -16,19 +25,21 @@ class hal_tclab:
       self.h.newpin("setpoint-"+str(i), hal.HAL_FLOAT, hal.HAL_IN)
       self.h.newpin("temperature-"+str(i), hal.HAL_FLOAT, hal.HAL_OUT)
       self.h.newpin("enable-"+str(i),hal.HAL_BIT, hal.HAL_IN)
-      #self.h.newpin("error-"+str(i), hal.HAL_BIT, hal.HAL_OUT)
+      self.h.newpin("error-"+str(i), hal.HAL_BIT, hal.HAL_OUT)
       self.h["temperature-"+str(i)] = 0
       self.h["setpoint-"+str(i)] = 0
       self.h["enable-"+str(i)] = 0
-
+      global tc
+      if tc is None:
+        prepare()
+      self.tc=tc
     self.h.newpin("enable",hal.HAL_BIT, hal.HAL_IN)
     self.h.newpin("error", hal.HAL_BIT, hal.HAL_OUT)
 
-    self.tc=tclab.TCLab()
 
     for i in range(4):
       self.setpoints[i] = self.tc.getsetpoint(i)
-      #self.h["error-"+str(i)]= False
+      self.h["error-"+str(i)]= False
     self.h["error"] = 0
 
     self.h.ready()
@@ -51,8 +62,13 @@ class hal_tclab:
             if tmp_set != self.setpoints[i]:
               self.tc.setsetpoint(i,tmp_set)
               self.setpoints[i] = tmp_set
-            if self.h["enable"] and self.h["enable-"+str(i)] and self.h["temperature-"+str(i)] > 0 :
-              self.tc.enable(i)
+            if self.h["enable"] and self.h["enable-"+str(i)]:
+              if self.h["temperature-"+str(i)] > -20 :
+                self.tc.enable(i)
+                self.tc["error-"+str(i)] = False
+              else:
+                self.tc.disable(i)
+                self.tc["error-"+str(i)] = True
             else:
               self.tc.disable(i)
         except Exception as e:
@@ -62,10 +78,10 @@ class hal_tclab:
       print( str(e))
       raise SystemExit
 
-print("HERE IS HAL_TCLAB MAIN")
 
+print("HERE IS HAL_TCLAB MAIN")
 comp= hal_tclab()
-#hal.addf("servo-thread")
+
 try:
   while 1:
     comp.routine()
